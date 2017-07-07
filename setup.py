@@ -18,6 +18,12 @@ setup(
     author_email='saeid.adli@gmail.com',
     url='spatialanalyst.ir',
     license=license,
+    install_requires=[
+        'pandas>=0.20.2',
+        'numpy>=1.13.0',
+        'geopandas>=0.2.1',
+        'arcpy>=10.3.0',
+    ],
     packages=find_packages(exclude=('tests', 'docs'))
 )
 
