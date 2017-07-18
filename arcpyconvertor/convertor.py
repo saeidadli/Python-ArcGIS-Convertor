@@ -113,16 +113,14 @@ def fc_to_gdf(fc):
     
     return gdf
 
-def tbl_to_df(tbl, fieldnames = None):
+def tbl_to_gdf(tbl, fieldnames = None):
     gdf = fc_to_gdf(tbl)
     
     if fieldnames != None:
         fieldnames = [f for f in fieldnames if f in gdf.columns()]
     else:
         fieldnames = get_fields(tbl)[1:]
-        
-    df = pd.DataFrame(gdf)
 
-    return df[fieldnames].copy()
+    return gdf[fieldnames].copy()
 
 
