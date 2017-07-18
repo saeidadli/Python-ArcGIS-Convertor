@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 
 from pathlib import Path
@@ -57,8 +58,12 @@ def get_fields(in_fc, output_type = 'list'):
 
 def gdf_to_fc(gdf, fc):
     """
-    converts a geopandas dataframe to a layer in a ESRI file geodatabase
+    converts a geopandas dataframe to a layer in a ESRI file geodatabase.
+    Notes:
+        - gdf have to have geometry field.
     """
+    if 'geometry' not in gdf.columns.values:
+        sys.exit()
     GDB, workspace, dirname, fc_name = gdb_path(fc)
     
     # convert fc to a gpkg in a temporary directory
@@ -87,9 +92,10 @@ def gdf_to_fc(gdf, fc):
 
     return fc
 
-def df_to_tbl(df, tbl):
-    x = np.array(np.rec.fromrecords(df.values))
-    names = df.dtypes.index.tolist()
+
+def gdf_to_tbl(gdf, tbl):
+    x = np.array(np.rec.fromrecords(gdf.values))
+    names = gdf.dtypes.index.tolist()
     names = [str(arcpy.ValidateTableName(name)) for name in names]
     x.dtype.names = tuple(names)
     arcpy.da.NumPyArrayToTable(x, tbl)
@@ -118,15 +124,5 @@ def tbl_to_df(tbl, fieldnames = None):
     df = pd.DataFrame(gdf)
 
     return df[fieldnames].copy()
-
-def geojson_to_fc(geojson, fc):
-    gdf = gpd.read_file(geojson)
-    gdf_to_fc(gdf, fc)
-    return fc
-
-def fc_to_geojson(fc, geojson):
-    gdf = fc_to_gdf(fc)
-    gdf.to_file(geojson)
-    return geojson
 
 
