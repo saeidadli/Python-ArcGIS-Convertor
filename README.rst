@@ -1,17 +1,13 @@
-Python ArcGIS convertor
+GeoPandas ArcGIS convertor
 ***********************
 This package only works if you already have ArcGISpro installed in your machine.
-This is a Python 3.4+ package to convert between the ESRI Geodatabase format and:
-    - GeoJSON
-    - Geopandas GeoDataFrame
-    - Pandas DataFrame
-
+This is a Python 3.4+ package to convert between the ESRI Geodatabase format and Geopandas GeoDataFrame.
 
 Installation
 ============
 Install with pip via:
-``pip install git+https://github.com/saeidadli/Python-ArcGIS-Convertor``
-If you want to use this without pip in an ArcGIS toolbox you can download ``arcpyconvertor`` folder and keep that with your toolbox.
+``pip install git+https://github.com/saeidadli/GeoPandas ArcGIS convertor``
+If you want to use this without pip in an ArcGIS toolbox you can download ``arcgdfconvertor`` folder and keep that with your toolbox.
 
 Usage
 =====

@@ -94,6 +94,11 @@ def gdf_to_fc(gdf, fc):
 
 
 def gdf_to_tbl(gdf, tbl):
+    gdf_cols = gdf.columns.values.tolist()
+    if 'geometry' in gdf_cols:
+        gdf_cols.remove('geometry')
+        gdf = gdf[gdf_cols].copy()
+    
     x = np.array(np.rec.fromrecords(gdf.values))
     names = gdf.dtypes.index.tolist()
     names = [str(arcpy.ValidateTableName(name)) for name in names]
