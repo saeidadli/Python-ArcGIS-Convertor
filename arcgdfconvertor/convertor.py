@@ -64,28 +64,44 @@ def gdf_to_fc(gdf, fc):
     """
     if 'geometry' not in gdf.columns.values:
         sys.exit()
+    elif not gdf.crs:   # Check the CRS
+        sys.exit()
+        
+    #get spatial reference of the file
+    crs_code = int(gdf.crs['init'].split(':')[1])
+    sr = arcpy.SpatialReference(crs_code)
+    
     GDB, workspace, dirname, fc_name = gdb_path(fc)
+    
+    #check and remove shape area and shape lenght fields
+    if 'Shape_Area' in gdf.columns:
+        gdf = gdf.drop(['Shape_Area'], axis = 1)
+    if 'Shape_Length' in gdf.columns:
+        gdf = gdf.drop(['Shape_Length'], axis = 1)
     
     # convert fc to a gpkg in a temporary directory
     tmp_dir = tempfile.TemporaryDirectory()
     p = Path(tmp_dir.name)
     n = fc_name + '.shp'
     
-    gdf.to_file(str(p/n))
-    fc_cols = get_fields(str(p/n))[2:]
+    gdf.to_file(str(p/n))                            #convert to shape
+    arcpy.DefineProjection_management(str(p/n), sr)  #define projection
+    fc_cols = get_fields(str(p/n))[2:]               #get fields
+	fc_cols = [arcpy.ValidateTableName(x) for x in fc_cols]
     
     #copy the file into a feature class
     fc = arcpy.CopyFeatures_management(str(p/n), fc)
     
     gdf_cols = gdf.columns.tolist()
     gdf_cols.remove('geometry')
+	gdf_cols = [arcpy.ValidateTableName(x) for x in gdf_cols]
 
     #fixing the columns
     if gdf_cols:
         col_dict = {col: gdf_cols[indx] for indx, col  in enumerate(fc_cols) }
         for col in col_dict:
             if col_dict[col] != col:
-                arcpy.AlterField_management(fc, col, col_dict[col], clear_field_alias="true")
+                arcpy.AlterField_management(fc, col, col_dict[col][0:30], clear_field_alias="true")
     
     # Delete temporary directory
     tmp_dir.cleanup()
@@ -115,6 +131,9 @@ def fc_to_gdf(fc):
         desc = arcpy.Describe(fc)
         fc_path = desc.catalogPath
         gdf = gpd.read_file(fc_path)
+        crs = gdf.crs
+        if crs['init'] != 'epsg:4326':
+            gdf = gdf.to_crs({'init': 'epsg:4326'})
     
     return gdf
 
